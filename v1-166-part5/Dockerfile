@@ -1,21 +1,19 @@
+# Dockerfile del backend
 FROM python:3.11-slim
 
-RUN pip install poetry==1.6.1
+# Instala dependencias del sistema necesarias para OpenCV y PDF processing
+RUN apt-get update && apt-get install -y \
+    libgl1-mesa-glx \
+    libglib2.0-0 \
+    poppler-utils \
+    tesseract-ocr \
+    && rm -rf /var/lib/apt/lists/*
 
-RUN poetry config virtualenvs.create false
+WORKDIR /app
 
-WORKDIR /code
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
-COPY ./pyproject.toml ./README.md ./poetry.lock* ./
+COPY . .
 
-COPY ./package[s] ./packages
-
-RUN poetry install  --no-interaction --no-ansi --no-root
-
-COPY ./app ./app
-
-RUN poetry install --no-interaction --no-ansi
-
-EXPOSE 8080
-
-CMD exec uvicorn app.server:app --host 0.0.0.0 --port 8080
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080"]

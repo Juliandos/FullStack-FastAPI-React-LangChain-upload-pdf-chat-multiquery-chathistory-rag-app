@@ -54,7 +54,10 @@ old_chain = (
         )
 ).with_types(input_type=RagInput)
 
-postgres_memory_url = "postgresql+psycopg://postgres:postgres@localhost:5432/pdf_rag_history"
+postgres_memory_url = os.getenv(
+    "CHAT_HISTORY_DATABASE_URL",
+    "postgresql+psycopg://postgres:postgres@rag-postgres:5432/pdf_rag_history"
+)
 
 get_session_history = lambda session_id: SQLChatMessageHistory(
     connection_string=postgres_memory_url,
